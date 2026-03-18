@@ -1,0 +1,5 @@
+ALTER TABLE links
+ADD CONSTRAINT fk_link_user
+FOREIGN KEY (user_id)
+REFERENCES users(id)
+ON DELETE CASCADE;

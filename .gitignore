@@ -1,0 +1,56 @@
+# Go: build artifacts
+*.exe
+*.exe~
+*.dll
+*.so
+*.dylib
+*.test
+*.out
+*.prof
+
+# Output directories (common)
+bin/
+build/
+dist/
+tmp/
+
+# Package objects and caches
+pkg/
+GOCACHE/
+*.modcache
+
+# Vendor (uncomment if you commit vendor/ to repo)
+vendor/
+
+# Air (cosmtrek/air) — temp build/cache for live reload
+.air
+.air.*
+tmp/
+# If your Air setup outputs other dirs
+dist/
+build/
+*.bin
+
+# Test and coverage files
+coverage.out
+*.cover
+*.cov
+
+# Logs and runtime files
+*.log
+*.pid
+
+# IDE/editor files
+.vscode/
+.idea/
+*.iml
+*.suo
+*.swp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Environment / secrets
+.env
+.env.*

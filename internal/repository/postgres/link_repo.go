@@ -34,7 +34,10 @@ func (r *linkRepo) FindByShortCode(shortCode string) (*domain.Link, error) {
 	query := `SELECT * FROM links WHERE short_code = $1`
 
 	err := r.db.QueryRow(query, shortCode).Scan(&link.ID, &link.UserID, &link.OriginalURL, &link.ShortCode, &link.Title, &link.IsActive, &link.ExpiresAt, &link.CreatedAt)
-	if err != nil {
+	switch {
+	case errors.Is(err, sql.ErrNoRows):
+		return nil, pkg.ErrURLNotFound
+	case err != nil:
 		return nil, err
 	}
 

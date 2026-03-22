@@ -1,17 +1,21 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/gewall/short-url/internal/handler"
 	mw "github.com/gewall/short-url/internal/middleware"
 	repository "github.com/gewall/short-url/internal/repository/postgres"
 	"github.com/gewall/short-url/internal/service"
+	"github.com/gewall/short-url/internal/worker"
 	"github.com/gewall/short-url/pkg"
 	"github.com/go-chi/chi/v5"
 	"github.com/go-chi/chi/v5/middleware"
 	"github.com/go-chi/cors"
 	"github.com/go-chi/render"
+	"github.com/oschwald/geoip2-golang/v2"
 )
 
 func main() {
@@ -19,6 +23,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	geodb, err := geoip2.Open(os.Getenv("GEOIP_LOC"))
+	if err != nil {
+		panic(fmt.Errorf("failed to open geoip db: %w", err))
+	}
+	defer geodb.Close()
 
 	db, err := pkg.NewPostgres()
 	if err != nil {
@@ -42,7 +52,7 @@ func main() {
 		w.Write([]byte("OKE"))
 	})
 
-	userRepo := repository.NewUserRepository(db)
+	userRepo := repository.NewUserRepo(db)
 	userSvc := service.NewUserService(userRepo)
 	userHdl := handler.NewUserHandler(userSvc)
 
@@ -53,6 +63,11 @@ func main() {
 	linkRepo := repository.NewLinkRepo(db)
 	linkSvc := service.NewLinkService(linkRepo)
 	linkHdl := handler.NewLinkHandler(linkSvc)
+
+	clickRepo := repository.NewClickRepo(db)
+	cw := worker.NewClickWorker(4, 100, service.RedirectProcessJob, clickRepo)
+	redirectSvc := service.NewRedirectService(geodb, linkRepo, clickRepo, cw)
+	redirectHdl := handler.NewRedirectHandler(redirectSvc)
 
 	apiRouter := chi.NewRouter()
 	apiRouter.Use(mw.JWTMiddleware)
@@ -75,14 +90,18 @@ func main() {
 	})
 
 	authRouter := chi.NewRouter()
-	authRouter.Route("/auth", func(r chi.Router) {
+	authRouter.Route("/", func(r chi.Router) {
 		r.Post("/signup", authHdl.SignUp)
 		r.Post("/signin", authHdl.SignIn)
 		r.Post("/refresh-token", authHdl.RefreshToken)
 	})
 
-	r.Mount("/", authRouter)
+	redirectRouter := chi.NewRouter()
+	redirectRouter.Get("/{code}", redirectHdl.Redirect)
+
+	r.Mount("/auth", authRouter)
 	r.Mount("/api", apiRouter)
+	r.Mount("/", redirectRouter)
 
 	http.ListenAndServe(":8080", r)
 }

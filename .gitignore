@@ -14,6 +14,10 @@ build/
 dist/
 tmp/
 
+# GeoIP / MaxMind DB files (e.g., .mmdb files or files/dirs named "geoip")
+*.mmdb
+geoip*
+
 # Package objects and caches
 pkg/
 GOCACHE/

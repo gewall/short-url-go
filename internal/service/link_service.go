@@ -12,11 +12,11 @@ import (
 
 type LinkRepository interface {
 	Create(domain.Link) (*domain.Link, error)
-	FindByShortCode(shortCode string) (*domain.Link, error)
-	FindById(linkId uuid.UUID) (*domain.Link, error)
-	FindAllByUser(userID uuid.UUID) ([]domain.Link, error)
-	Update(link domain.Link) (*domain.Link, error)
-	Delete(linkId uuid.UUID) error
+	FindByShortCode(string) (*domain.Link, error)
+	FindById(uuid.UUID) (*domain.Link, error)
+	FindAllByUser(uuid.UUID) ([]domain.Link, error)
+	Update(domain.Link) (*domain.Link, error)
+	Delete(uuid.UUID) error
 }
 
 type LinkService struct {
@@ -32,7 +32,7 @@ func (s *LinkService) CreateLink(link dto.LinkReqDTO, userId string) (*dto.LinkR
 	var _link domain.Link
 	_userId, err := uuid.Parse(userId)
 	if err != nil {
-		return &dto.LinkRespDTO{}, err
+		return nil, err
 	}
 	if link.ShortCode == "" {
 		code = pkg.GenerateShortCode()
@@ -50,7 +50,7 @@ func (s *LinkService) CreateLink(link dto.LinkReqDTO, userId string) (*dto.LinkR
 
 	l, err := s.repo.Create(_link)
 	if err != nil {
-		return &dto.LinkRespDTO{}, err
+		return nil, err
 	}
 
 	return &dto.LinkRespDTO{
@@ -65,7 +65,7 @@ func (s *LinkService) CreateLink(link dto.LinkReqDTO, userId string) (*dto.LinkR
 func (s *LinkService) FindByShortCode(shortCode string) (*dto.LinkRespDTO, error) {
 	l, err := s.repo.FindByShortCode(shortCode)
 	if err != nil {
-		return &dto.LinkRespDTO{}, err
+		return nil, err
 	}
 
 	return &dto.LinkRespDTO{
@@ -81,10 +81,10 @@ func (s *LinkService) FindById(linkId uuid.UUID) (*dto.LinkRespDTO, error) {
 	l, err := s.repo.FindById(linkId)
 
 	if errors.Is(err, pkg.ErrRowsEmpty) {
-		return &dto.LinkRespDTO{}, pkg.ErrRowsEmpty
+		return nil, pkg.ErrRowsEmpty
 	}
 	if err != nil {
-		return &dto.LinkRespDTO{}, err
+		return nil, err
 	}
 
 	return &dto.LinkRespDTO{
@@ -93,6 +93,7 @@ func (s *LinkService) FindById(linkId uuid.UUID) (*dto.LinkRespDTO, error) {
 		OriginalURL: l.OriginalURL,
 		Title:       l.Title,
 		ExpiresAt:   l.ExpiresAt.Format(time.RFC3339),
+		IsActive:    l.IsActive,
 	}, nil
 }
 
@@ -128,9 +129,9 @@ func (s *LinkService) UpdateLink(linkID uuid.UUID, link *dto.LinkReqUpdateDTO) (
 	l, err := s.repo.Update(_link)
 	switch {
 	case errors.Is(err, pkg.ErrRowsEmpty):
-		return &dto.LinkRespDTO{}, pkg.ErrRowsEmpty
+		return nil, pkg.ErrRowsEmpty
 	case err != nil:
-		return &dto.LinkRespDTO{}, err
+		return nil, err
 	}
 
 	return &dto.LinkRespDTO{
@@ -144,6 +145,9 @@ func (s *LinkService) UpdateLink(linkID uuid.UUID, link *dto.LinkReqUpdateDTO) (
 }
 
 func (s *LinkService) DeleteLink(linkID uuid.UUID) error {
+	if linkID == uuid.Nil {
+		return errors.New("invalid link id")
+	}
 	if err := s.repo.Delete(linkID); err != nil {
 		return err
 	}

@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	_ "net/http/pprof"
 	"os"
 
 	"github.com/gewall/short-url/internal/handler"
@@ -102,6 +103,10 @@ func main() {
 	r.Mount("/auth", authRouter)
 	r.Mount("/api", apiRouter)
 	r.Mount("/", redirectRouter)
+
+	go func() {
+		http.ListenAndServe("localhost:6060", nil)
+	}()
 
 	http.ListenAndServe(":8080", r)
 }

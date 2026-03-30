@@ -9,10 +9,10 @@ import (
 
 type UserRepository interface {
 	Create(domain.User) (*domain.User, error)
-	FindByUsername(username string) (*domain.User, error)
-	FindByID(id uuid.UUID) (*domain.User, error)
+	FindByUsername(string) (*domain.User, error)
+	FindByID(uuid.UUID) (*domain.User, error)
 	FindAll() ([]*domain.User, error)
-	Delete(id uuid.UUID) error
+	Delete(uuid.UUID) error
 }
 
 type UserService struct {

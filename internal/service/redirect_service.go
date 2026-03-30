@@ -8,7 +8,6 @@ import (
 
 	"github.com/gewall/short-url/internal/domain"
 	"github.com/gewall/short-url/internal/dto"
-	"github.com/gewall/short-url/internal/worker"
 
 	"github.com/gewall/short-url/pkg"
 	"github.com/oschwald/geoip2-golang/v2"
@@ -18,14 +17,22 @@ type ClickRepository interface {
 	Create(context.Context, domain.Clicks) error
 }
 
-type RedirectService struct {
-	geoip    *geoip2.Reader
-	LinkRepo LinkRepository
-	repo     ClickRepository
-	cw       *worker.ClickWorker
+type ClickWorker interface {
+	Submit(domain.Clicks) error
 }
 
-func NewRedirectService(geoip *geoip2.Reader, link LinkRepository, repo ClickRepository, cw *worker.ClickWorker) *RedirectService {
+type GeoIP interface {
+	Country(netip.Addr) (*geoip2.Country, error)
+}
+
+type RedirectService struct {
+	geoip    GeoIP
+	LinkRepo LinkRepository
+	repo     ClickRepository
+	cw       ClickWorker
+}
+
+func NewRedirectService(geoip GeoIP, link LinkRepository, repo ClickRepository, cw ClickWorker) *RedirectService {
 	return &RedirectService{geoip: geoip, LinkRepo: link, repo: repo, cw: cw}
 }
 
@@ -41,10 +48,12 @@ func (s *RedirectService) Redirect(ctx context.Context, redirect *dto.Redirect) 
 	if !rec.HasData() {
 		return nil, pkg.ErrRowsEmpty
 	}
+
 	ipHash := pkg.GenerateHash(ip.String())
 	redirect.Country = rec.Country.ISOCode
 
 	link, err := s.LinkRepo.FindByShortCode(redirect.Code)
+
 	switch {
 	case errors.Is(err, pkg.ErrURLNotFound):
 		return nil, pkg.ErrURLNotFound

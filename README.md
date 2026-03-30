@@ -10,8 +10,9 @@ A simple URL shortener built with Go, PostgreSQL and the chi router. Provides a 
 ## Features
 - Create short URLs for given targets
 - HTTP redirect from short code to original URL
+- Log access and usage activity
 
-## Project layout (suggested)
+## Project layout 
 - cmd/server — application entrypoint
 - internal/handler — HTTP handlers
 - internal/repository — DB access

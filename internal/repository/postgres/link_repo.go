@@ -31,7 +31,7 @@ func (r *linkRepo) Create(link domain.Link) (*domain.Link, error) {
 
 func (r *linkRepo) FindByShortCode(shortCode string) (*domain.Link, error) {
 	var link domain.Link
-	query := `SELECT * FROM links WHERE short_code = $1`
+	query := `SELECT * FROM links WHERE short_code = $1 AND is_active = true`
 
 	err := r.db.QueryRow(query, shortCode).Scan(&link.ID, &link.UserID, &link.OriginalURL, &link.ShortCode, &link.Title, &link.IsActive, &link.ExpiresAt, &link.CreatedAt)
 	switch {

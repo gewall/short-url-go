@@ -70,6 +70,9 @@ func main() {
 	redirectSvc := service.NewRedirectService(geodb, linkRepo, clickRepo, cw)
 	redirectHdl := handler.NewRedirectHandler(redirectSvc)
 
+	analyticSvc := service.NewAnalyticService(clickRepo)
+	analyticHdl := handler.NewAnalyticHandler(analyticSvc)
+
 	apiRouter := chi.NewRouter()
 	apiRouter.Use(mw.JWTMiddleware)
 	apiRouter.Route("/users", func(r chi.Router) {
@@ -87,6 +90,12 @@ func main() {
 			r.Get("/", linkHdl.FindById)
 			r.Patch("/", linkHdl.UpdateLink)
 			r.Delete("/", linkHdl.DeleteLink)
+			r.Route("/analytics", func(r chi.Router) {
+
+				r.Get("/", analyticHdl.Analytics)
+				r.Get("/clicks", analyticHdl.TimeSeries)
+				r.Get("/country", analyticHdl.Country)
+			})
 		})
 	})
 

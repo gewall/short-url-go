@@ -26,7 +26,7 @@ type AnalyticsDate struct {
 }
 
 type AnalyticsCountry struct {
-	Country    string
-	Clicks     int
-	Percentage float64
+	Country    string  `json:"country"`
+	Clicks     int     `json:"clicks"`
+	Percentage float64 `json:"percentage"`
 }

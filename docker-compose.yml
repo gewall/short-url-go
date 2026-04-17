@@ -9,10 +9,10 @@ services:
       - "8080:8080"
     environment:
       PORT: 8080
-      DATABASE_URL: ${ DATABASE_URL }
-      GEOIP_LOC: ${ GEOIP_LOC }
-      HASH_SALT: ${ HASH_SALT }
-      JWT_SECRET_KEY: ${ JWT_SECRET_KEY }
+      DATABASE_URL: ${DATABASE_URL}
+      GEOIP_LOC: ${GEOIP_LOC}
+      HASH_SALT: ${HASH_SALT}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY}
     depends_on:
       - postgres
 

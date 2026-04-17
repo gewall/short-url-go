@@ -19,7 +19,6 @@ tmp/
 geoip*
 
 # Package objects and caches
-pkg/
 GOCACHE/
 *.modcache
 

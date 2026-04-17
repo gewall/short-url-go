@@ -35,14 +35,13 @@ services:
       timeout: 5s
       retries: 5
 
-  services:
-    migrate:
-      image: migrate/migrate
-      volumes:
-        - ./migrations:/migrations
-      command: ["-path", "/migrations", "-database", "${DATABASE_URL}", "up"]
-      depends_on:
-        - db
+  migrate:
+    image: migrate/migrate
+    volumes:
+      - ./migrations:/migrations
+    command: ["-path", "/migrations", "-database", "${DATABASE_URL}", "up"]
+    depends_on:
+      - postgres
 
 volumes:
   postgres_data:

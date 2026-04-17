@@ -11,6 +11,8 @@ services:
       PORT: 8080
       DATABASE_URL: postgres://postgres:postgres@postgres:5432/short_url_db?sslmode=disable
       GEOIP_LOC: internal/geoip/GeoLite2-Country.mmdb
+      HASH_SALT: 2f686809294918d0c166f1a1bed66cba
+      JWT_SECRET_KEY: 7195c335f498d6e5451513e22bbaf927
     depends_on:
       - postgres
 

@@ -25,6 +25,11 @@ func main() {
 		panic(err)
 	}
 
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
 	geodb, err := geoip2.Open(os.Getenv("GEOIP_LOC"))
 	if err != nil {
 		panic(fmt.Errorf("failed to open geoip db: %w", err))
@@ -118,5 +123,5 @@ func main() {
 		http.ListenAndServe("localhost:6060", nil)
 	}()
 
-	http.ListenAndServe(":8080", r)
+	http.ListenAndServe(":"+port, r)
 }

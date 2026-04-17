@@ -1,0 +1,32 @@
+# Git
+.git
+.gitignore
+
+# Env
+.env
+.env.*
+
+# Build / output
+dist/
+build/
+tmp/
+
+# Binary lokal
+main
+
+# Logs
+*.log
+
+# OS
+.DS_Store
+
+# Docker
+docker-compose.yml
+
+# Node (kalau ada frontend)
+node_modules
+npm-debug.log
+
+# Test
+*.test
+coverage.out

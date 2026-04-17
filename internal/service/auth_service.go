@@ -77,6 +77,19 @@ func (s *AuthService) SignIn(user *dto.UserReqDTO) (*dto.AuthRespDTO, error) {
 	return &dto.AuthRespDTO{AccessToken: token, RefreshToken: refToken}, nil
 }
 
+func (s *AuthService) SignOut(token string) error {
+	verfToken, err := s.repo.Find(token)
+	if err != nil {
+		return err
+	}
+
+	if err := s.repo.UpdateRevoke(verfToken.TokenHash); err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func (s *AuthService) RefreshToken(token string) (*dto.AuthRespDTO, error) {
 	var refToken domain.RefreshToken
 

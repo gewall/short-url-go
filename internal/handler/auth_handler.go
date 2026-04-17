@@ -64,6 +64,30 @@ func (h *AuthHandler) SignIn(w http.ResponseWriter, r *http.Request) {
 	render.Render(w, r, pkg.GetResponse(002, "Sign in successful", token))
 }
 
+func (h *AuthHandler) SignOut(w http.ResponseWriter, r *http.Request) {
+	refToken, err := r.Cookie("refresh_token")
+	if err != nil {
+		render.Render(w, r, pkg.InvalidInput(err))
+		return
+	}
+
+	if err := h.service.SignOut(refToken.Value); err != nil {
+		render.Render(w, r, pkg.InvalidInput(err))
+		return
+	}
+
+	http.SetCookie(w, &http.Cookie{
+		Name:     "refresh_token",
+		Value:    "",
+		Expires:  time.Now(),
+		Path:     "/",
+		HttpOnly: true,
+		Secure:   false,
+		SameSite: http.SameSiteLaxMode,
+	})
+	render.Render(w, r, pkg.GetResponse(002, "Sign out successful", nil))
+}
+
 func (h *AuthHandler) RefreshToken(w http.ResponseWriter, r *http.Request) {
 
 	refToken, err := r.Cookie("refresh_token")

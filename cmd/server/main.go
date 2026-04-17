@@ -43,7 +43,7 @@ func main() {
 	r.Use(render.SetContentType(render.ContentTypeJSON))
 	r.Use(cors.Handler(cors.Options{
 		AllowedOrigins:   []string{"https://*", "http://*"},
-		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
+		AllowedMethods:   []string{"GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"},
 		AllowedHeaders:   []string{"Accept", "Authorization", "Content-Type", "X-CSRF-Token"},
 		AllowCredentials: true,
 	}))
@@ -103,6 +103,7 @@ func main() {
 	authRouter.Route("/", func(r chi.Router) {
 		r.Post("/signup", authHdl.SignUp)
 		r.Post("/signin", authHdl.SignIn)
+		r.Post("/signout", authHdl.SignOut)
 		r.Post("/refresh-token", authHdl.RefreshToken)
 	})
 

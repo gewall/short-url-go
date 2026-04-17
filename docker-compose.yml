@@ -9,10 +9,10 @@ services:
       - "8080:8080"
     environment:
       PORT: 8080
-      DATABASE_URL: postgres://postgres:postgres@postgres:5432/short_url_db?sslmode=disable
-      GEOIP_LOC: internal/geoip/GeoLite2-Country.mmdb
-      HASH_SALT: 2f686809294918d0c166f1a1bed66cba
-      JWT_SECRET_KEY: 7195c335f498d6e5451513e22bbaf927
+      DATABASE_URL: ${ DATABASE_URL }
+      GEOIP_LOC: ${ GEOIP_LOC }
+      HASH_SALT: ${ HASH_SALT }
+      JWT_SECRET_KEY: ${ JWT_SECRET_KEY }
     depends_on:
       - postgres
 
@@ -28,6 +28,7 @@ services:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+      - ./internal/geodb/GeoLite2-Country.mmdb:/app/internal/geodb/GeoLite2-Country.mmdb:ro
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U postgres"]
       interval: 5s
